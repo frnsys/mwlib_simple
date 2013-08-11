@@ -5,6 +5,16 @@ mwlib - MediaWiki parser and utility library
 ======================================================================
 
 
+About This Fork/Branch
+======================================================================
+mwlib does not yet officially support Python 3. This branch is a more
+lightweight version I have ported to Python 3 (I did not include
+any backwards compatibility). I have tried to include only the Wikimedia
+markup parsing functionality – that is the only functionality I needed,
+and I didn't want to port the entire library. It's mainly meant to be
+a substitute until the official library is ported over.
+
+
 Overview
 ======================================================================
 mwlib provides a library for parsing MediaWiki articles and
