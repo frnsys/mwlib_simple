@@ -31,7 +31,7 @@ def main():
         ext_modules.append(Extension(modname, [x]))
 
     setup(
-        name="mwlib_parser",
+        name="mwlib",
         version=get_version(),
         install_requires=install_requires,
         ext_modules=ext_modules,
