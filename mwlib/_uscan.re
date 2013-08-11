@@ -76,13 +76,13 @@ public:
 				return tokens.size()-1;
 			}
 		}
-		
+
 		last_ebad = false;
 
 		Token t;
 		t.type = val;
 		t.start = (start-source);
-		t.len = cursor-start;			
+		t.len = cursor-start;
 		tokens.push_back(t);
 		return tokens.size()-1;
 	}
@@ -128,7 +128,7 @@ public:
 int Scanner::scan()
 {
 	start=cursor;
-	
+
 	Py_UNICODE *marker=cursor;
 
 	Py_UNICODE *save_cursor = cursor;
@@ -165,7 +165,7 @@ re2c:yyfill:enable = 0 ;
   entity = (entity_name | entity_hex | entity_dec);
 
 
-  magicword = ( "__TOC__" 
+  magicword = ( "__TOC__"
 	      | "__NOTOC__"
 	      | "__NOINDEX__"
 	      | "__FORCETOC__"
@@ -176,7 +176,7 @@ re2c:yyfill:enable = 0 ;
 	      | "__NOGALLERY__"
 	      | "__NOTITLECONVERT__"
 	      | "__NOTC__"
-	      | "__END__" 
+	      | "__END__"
 	      | "__START__"
 	      | "__NUMBEREDHEADINGS__"
 	      | "__NOTOCNUM__"
@@ -190,9 +190,9 @@ re2c:yyfill:enable = 0 ;
   [ \t]* ":"* "{|"              {++tablemode; RET(t_begin_table);}
   [ \t]* "|}"              {if (--tablemode<0) tablemode=0; RET(t_end_table);}
 
-  [ \t]* "|" "-"+         
+  [ \t]* "|" "-"+
 	{
-		if (tablemode) 
+		if (tablemode)
 			RET(t_row);
 		if (*start==' ') {
 			cursor = start+1;
@@ -201,7 +201,7 @@ re2c:yyfill:enable = 0 ;
 		RET(t_text);
 	}
 
-  [ \t]* ("|" | "!")      
+  [ \t]* ("|" | "!")
 	{
 		if (tablemode) {
 		        lineflags.rowchar=cursor[-1];
@@ -215,9 +215,9 @@ re2c:yyfill:enable = 0 ;
 		RET(t_text);
 	}
 
-  [ \t]* "|" "+"+         
+  [ \t]* "|" "+"+
 	{
-		if (tablemode) 
+		if (tablemode)
 			RET(t_tablecaption);
 		if (*start==' ') {
 			cursor = start+1;
@@ -243,7 +243,7 @@ not_bol:
 	marker = cursor;
 
 /*!re2c
-  "\XEBAD" {RET(t_ebad);} 
+  "\XEBAD" {RET(t_ebad);}
   "[" mailto {RET(t_urllink);}
   mailto {RET(t_http_url);}
   "[" irc {RET(t_urllink);}
@@ -274,18 +274,18 @@ not_bol:
 				RET(t_text);
 			}
 		    }
-  "\n" ("\n" | " ")* "\n"	    
+  "\n" ("\n" | " ")* "\n"
 		{newline();
 		 Py_UNICODE *tmp = cursor;
 
 		 cursor = start+1;
 		 found(t_newline);
 		 start += 1;
-		 cursor = tmp;  
+		 cursor = tmp;
 		 RET(t_break);
 		}
   "\n"		    {newline(); RET(t_newline);}
-  "||" | "|!" | "!!"              
+  "||" | "|!" | "!!"
 	{
 		if (tablemode) {
 		        if (cursor[-2]!='!' || cursor[-2]==lineflags.rowchar) {
@@ -295,16 +295,16 @@ not_bol:
 		cursor = start+1;
 		RET(t_special);
 	}
-  "|+"              
+  "|+"
 	{
-		if (tablemode) 
+		if (tablemode)
 			RET(t_tablecaption);
 		cursor = start+1;
 		RET(t_special);
 	}
   [:|\[\]]              {RET(t_special);}
   "'" "'"+ {RET(t_singlequote);}
-  "<" "/"? [a-zA-Z]+ [^\000<>]* "/"? ">" 
+  "<" "/"? [a-zA-Z]+ [^\000<>]* "/"? ">"
 		{RET(t_html_tag);}
 
   "<!--"[^\000<>]*"-->"
@@ -317,7 +317,7 @@ not_bol:
 }
 
 
-PyObject *py_scan(PyObject *self, PyObject *args) 
+PyObject *uscan(PyObject *self, PyObject *args)
 {
 	PyObject *arg1;
 	if (!PyArg_ParseTuple(args, "O:mwscan.scan", &arg1)) {
@@ -330,9 +330,11 @@ PyObject *py_scan(PyObject *self, PyObject *args)
 		return 0;
 	}
 
-	Py_UNICODE *start = unistr->str;
-	Py_UNICODE *end = start+unistr->length;
-	
+    /*Py_UNICODE *start = unistr->str;*/
+    Py_UNICODE *start = PyUnicode_AS_UNICODE(unistr);
+    Py_ssize_t length = PyUnicode_GET_DATA_SIZE(unistr);
+	Py_UNICODE *end = start+length;
+
 
 	Scanner scanner (start, end);
 	Py_BEGIN_ALLOW_THREADS
@@ -340,7 +342,7 @@ PyObject *py_scan(PyObject *self, PyObject *args)
 	}
 	Py_END_ALLOW_THREADS
 	Py_XDECREF(unistr);
-	
+
 	// return PyList_New(0); // uncomment to see timings for scanning
 
 	int size = scanner.tokens.size();
@@ -348,29 +350,36 @@ PyObject *py_scan(PyObject *self, PyObject *args)
 	if (!result) {
 		return 0;
 	}
-	
+
 	for (int i=0; i<size; i++) {
 		Token t = scanner.tokens[i];
 		PyList_SET_ITEM(result, i, Py_BuildValue("iii", t.type, t.start, t.len));
 	}
-	
+
 	return result;
 }
 
-
-
 static PyMethodDef module_functions[] = {
-	{"scan", (PyCFunction)py_scan, METH_VARARGS, "scan(text)"},
+	{"scan", (PyCFunction)uscan, METH_VARARGS, "scan(text)"},
 	{0, 0},
 };
 
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,          /* base */
+    "_uscan",                         /* name */
+    NULL,                           /* docstring */
+    -1,                             /* size */
+    module_functions,               /* methods */
+    NULL,                           /* leave as null */
+    NULL,                           /* traversal func */
+    NULL,                           /* clearing func */
+    NULL                            /* free func */
+};
 
-
-extern "C" {
-	DL_EXPORT(void) init_uscan();
-}
-
-DL_EXPORT(void) init_uscan()
+PyMODINIT_FUNC
+PyInit__uscan(void)
 {
-	/*PyObject *m =*/ Py_InitModule("_uscan", module_functions);
+    return PyModule_Create(&moduledef);
 }
+
+

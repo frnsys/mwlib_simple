@@ -10,7 +10,7 @@ class TemplateRecursion(Exception): pass
 
 def flatten(node, expander, variables, res):
     t=type(node)
-    if isinstance(node, (unicode, str)):
+    if isinstance(node, str):
         res.append(node)
         return True
 
@@ -44,7 +44,7 @@ class MemoryLimitError(Exception):
 
 
 def equalsplit(node):
-    if isinstance(node, basestring):
+    if isinstance(node, str):
         return None, node
 
     try:
@@ -56,7 +56,7 @@ def equalsplit(node):
 
     
 def equalsplit_25(node):
-    if isinstance(node, basestring):
+    if isinstance(node, str):
         return None, node
 
     try:
@@ -94,28 +94,28 @@ class ArgumentList(object):
         if isinstance(n, slice):
             start = n.start or 0
             stop = n.stop or len(self)
-            return [self.get(x,  None) or u"" for x in range(start, stop)]
-        return self.get(n, None) or u''
+            return [self.get(x,  None) or "" for x in range(start, stop)]
+        return self.get(n, None) or ''
         
     def get(self, n, default):
         self.count += 1
-        if isinstance(n, (int, long)):
+        if isinstance(n, int):
             try:
                 a=self.args[n]
             except IndexError:
                 return default
-            if isinstance(a, unicode):
+            if isinstance(a, str):
                 return a.strip()
             tmp = []
             flatten(a, self.expander, self.variables, tmp)
             _insert_implicit_newlines(tmp)
-            tmp = u"".join(tmp).strip()
+            tmp = "".join(tmp).strip()
             if len(tmp)>256*1024:
                 raise MemoryLimitError("template argument too long: %s bytes" % len(tmp))
             # FIXME: cache value ???
             return tmp
 
-        assert isinstance(n, basestring), "expected int or string"
+        assert isinstance(n, str), "expected int or string"
 
         if n not in self.namedargs:
             while self.varnum < len(self.args):
@@ -127,14 +127,14 @@ class ArgumentList(object):
                     tmp = []
                     flatten(name, self.expander, self.variables, tmp)
                     _insert_implicit_newlines(tmp)
-                    name = u"".join(tmp).strip()
+                    name = "".join(tmp).strip()
                     do_strip = True
                 else:
                     name = str(self.varcount)
                     self.varcount+=1
                     do_strip = False
 
-                if do_strip and isinstance(val, unicode):
+                if do_strip and isinstance(val, str):
                     val = val.strip()
                 self.namedargs[name] = (do_strip, val)
                 
@@ -143,7 +143,7 @@ class ArgumentList(object):
 
         try:
             do_strip, val = self.namedargs[n]
-            if isinstance(val, unicode):
+            if isinstance(val, str):
                 return val
         except KeyError:
             return default
@@ -151,7 +151,7 @@ class ArgumentList(object):
         tmp = []
         flatten(val, self.expander, self.variables, tmp)
         _insert_implicit_newlines(tmp)
-        tmp=u"".join(tmp)
+        tmp="".join(tmp)
         if do_strip:
             tmp = tmp.strip()
             
@@ -204,11 +204,11 @@ class Expander(object):
         si = None
         try:
             si = self.db.get_siteinfo()
-        except Exception, err:
-            print 'Caught: %s' % err
+        except Exception as err:
+            print('Caught: %s' % err)
 
         if si is None:
-            print "WARNING: failed to get siteinfo from %r" % (self.db,)
+            print("WARNING: failed to get siteinfo from %r" % (self.db,))
             si = siteinfo.get_siteinfo("de")
             
         self.nshandler = nshandler = nshandling.nshandler(si)
@@ -216,7 +216,7 @@ class Expander(object):
 
         if self.db and hasattr(self.db, "getSource"):
             source = self.db.getSource(pagename) or metabook.source()
-            local_values = source.locals or u""
+            local_values = source.locals or ""
             local_values = mwlocals.parse_locals(local_values)
         else:
             local_values = None
@@ -288,8 +288,8 @@ class Expander(object):
         res = ["\n"] # guard, against implicit newlines at the beginning
         flatten(parsed, self, ArgumentList(expander=self), res)
         _insert_implicit_newlines(res)
-        res[0] = u''
-        res = u"".join(res)
+        res[0] = ''
+        res = "".join(res)
         if not keep_uniq:
             res=self.uniquifier.replace_uniq(res)
         return res

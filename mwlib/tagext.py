@@ -35,7 +35,7 @@ class ExtensionRegistry(object):
         return k
         
     def names(self):
-        return self.name2ext.keys()
+        return list(self.name2ext.keys())
 
     def __getitem__(self, n):
         return self.name2ext[n]
@@ -149,7 +149,7 @@ class Syntaxhighlight(TagExtension):
     name = "syntaxhighlight"
     def __call__(self, source, attributes):
         return self.parse('<source%s>%s</source>' % (''.join(' %s=%s' % (k, v)
-                                                               for k, v in attributes.items()),
+                                                               for k, v in list(attributes.items())),
                                                       source))
 register(Syntaxhighlight)
 
@@ -182,23 +182,23 @@ register(LabledSectionTransclusionExtensionHotFix)
 class ListingExtension(TagExtension):
     " http://wikitravel.org/en/Wikitravel:Listings "
     name = "listing"
-    attrs = [(u"name",u"'''%s'''"),
-             ("alt",u"(''%s'')"),
-             ("address",u", %s"),
-             ("directions",u" (''%s'')"),
-             ("phone", u", ☎ %s"),
-             ("fax", u", fax: %s"),
-             ("email", u", e-mail: %s"),
-             ("url", u", %s"),
-             ("hours", u", %s"),
-             ("price", u", %s"),
+    attrs = [("name","'''%s'''"),
+             ("alt","(''%s'')"),
+             ("address",", %s"),
+             ("directions"," (''%s'')"),
+             ("phone", ", ☎ %s"),
+             ("fax", ", fax: %s"),
+             ("email", ", e-mail: %s"),
+             ("url", ", %s"),
+             ("hours", ", %s"),
+             ("price", ", %s"),
              # ("lat", u", Latitude: %s"), # disable in print as it is disabled in WP as well
              # ("long", u", Longitude: %s"),
-             ("tags", u", Tags: %s")]
+             ("tags", ", Tags: %s")]
     def __call__(self, source, attributes):
-        t = u"".join(v%attributes[k] for k,v in self.attrs if attributes.get(k,None))
+        t = "".join(v%attributes[k] for k,v in self.attrs if attributes.get(k,None))
         if source:
-            t += u", %s" % source
+            t += ", %s" % source
         return self.parse(t)
 
 register(ListingExtension)

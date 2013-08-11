@@ -7,7 +7,7 @@
 
 import sys
 import re
-import _uscan as _mwscan
+import mwlib._uscan as _mwscan
 from mwlib.refine.util import resolve_entity, parseParams
 
 def walknode(node, filt=lambda x: True):
@@ -17,10 +17,10 @@ def walknode(node, filt=lambda x: True):
                 if filt(k):
                     yield k
         return
-    
+
     if filt(node):
         yield node
-        
+
     if node.children:
         for x in node.children:
             for k in walknode(x):
@@ -33,7 +33,7 @@ def walknodel(node, filt=lambda x:True):
 def show(node, out=None, indent=0, verbose=False):
     if node is None:
         return
-    
+
     if out is None:
         out = sys.stdout
 
@@ -43,19 +43,19 @@ def show(node, out=None, indent=0, verbose=False):
         return
 
     out.write("%s%r\n" % ("    "*indent, node))
-    
+
     children = node.children
     if children:
         for x in children:
             show(x, out=out, indent=indent+1, verbose=verbose)
-            
+
 class _show(object):
     def __get__(self, obj, type=None):
         if obj is None:
             return lambda node, out=None: show(node, out=out)
         else:
             return lambda out=None: show(obj, out=out)
-            
+
 class token(object):
     caption = ''
     vlist = None
@@ -63,7 +63,7 @@ class token(object):
     level = None
     children = None
 
-    rawtagname = None 
+    rawtagname = None
     tagname = None
     ns = None
     lineprefix = None
@@ -76,8 +76,8 @@ class token(object):
     align = None
     thumb = False
     frame = None
-    
-    
+
+
     t_end = 0
     t_text = 1
     t_entity = 2
@@ -95,7 +95,7 @@ class token(object):
     t_pre = 14
     t_section = 15
     t_endsection = t_section_end = 16
-    
+
     t_item = 17
     t_colon = 18
     t_semicolon = 19
@@ -106,26 +106,26 @@ class token(object):
     t_tablecaption = 24
     t_urllink = 25
     t_uniq = 26
-    
+
     t_html_tag_end = 100
-    
+
     token2name = {}
     _text = None
 
     @staticmethod
     def join_as_text(tokens):
-        return u"".join([x.text or u"" for x in tokens])
-    
+        return "".join([x.text or "" for x in tokens])
+
     def _get_text(self):
         if self._text is None and self.source is not None:
             self._text = self.source[self.start:self.start+self.len]
         return self._text
-    
+
     def _set_text(self, t):
         self._text = t
 
     text = property(_get_text, _set_text)
-    
+
     def __init__(self, type=None, start=None, len=None, source=None, text=None, **kw):
         self.type = type
         self.start = start
@@ -133,7 +133,7 @@ class token(object):
         self.source = source
         if text is not None:
             self.text = text
-            
+
         self.__dict__.update(kw)
 
     def __repr__(self):
@@ -149,7 +149,7 @@ class token(object):
         if self.rawtagname:
             r.append(" rawtagname=")
             r.append(repr(self.rawtagname))
-            
+
         if self.vlist:
             r.append(" vlist=")
             r.append(repr(self.vlist))
@@ -176,12 +176,12 @@ class token(object):
         elif self.caption:
             r.append("->")
             r.append(repr(self.caption))
-            
-        return u"".join(r)
-    
-            
+
+        return "".join(r)
+
+
     show = _show()
-    
+
 token2name = token.token2name
 for d in dir(token):
     if d.startswith("t_"):
@@ -194,11 +194,11 @@ def _split_tag(txt):
     name = m.group(1)
     values = m.group(2)
     return name, values
-    
+
 def _analyze_html_tag(t):
     text = t.text
     selfClosing = False
-    if text.startswith(u"</"):
+    if text.startswith("</"):
         name = text[2:-1]
         isEndToken = True
     elif text.endswith("/>"):
@@ -224,12 +224,12 @@ def _analyze_html_tag(t):
 
 def dump_tokens(text, tokens):
     for type, start, len in tokens:
-        print type, repr(text[start:start+len])
-           
+        print(type, repr(text[start:start+len]))
+
 def scan(text):
-    text += u"\0"*32    
+    text += "\0"*32
     return _mwscan.scan(text)
-                         
+
 class _compat_scanner(object):
     allowed_tags = None
 
@@ -239,15 +239,15 @@ abbr b big blockquote br center cite code del div em endfeed font h1 h2 h3
 h4 h5 h6 hr i index inputbox ins kbd li ol p pages references rss s small span
 startfeed strike strong sub sup caption table td th tr tt u ul var dl dt dd
 """.split())
-        
-        
+
+
     def __call__(self, text, uniquifier=None):
         if self.allowed_tags is None:
             self._init_allowed_tags()
 
         if isinstance(text, str):
-            text = unicode(text)
-            
+            text = str(text)
+
         tokens = scan(text)
 
         res = []
@@ -256,7 +256,7 @@ startfeed strike strong sub sup caption table td th tr tt u ul var dl dt dd
             return text[start:start+tlen]
 
         for type,  start, tlen in tokens:
-            
+
             if type==token.t_begintable:
                 txt = g()
                 count = txt.count(":")
@@ -264,9 +264,9 @@ startfeed strike strong sub sup caption table td th tr tt u ul var dl dt dd
                     res.append(token(type=token.t_colon, start=start, len=count, source=text))
                 tlen -= count
                 start += count
-                    
-                
-                
+
+
+
             t = token(type=type, start=start, len=tlen, source=text)
 
             if type==token.t_entity:
@@ -280,7 +280,7 @@ startfeed strike strong sub sup caption table td th tr tt u ul var dl dt dd
                     t.text = s
                 _analyze_html_tag(t)
                 tagname = t.rawtagname
-                
+
                 if tagname in self.allowed_tags:
                     res.append(t)
                 else:
@@ -289,7 +289,7 @@ startfeed strike strong sub sup caption table td th tr tt u ul var dl dt dd
                 res.append(t)
 
         return res
-        
+
 compat_scan = _compat_scanner()
 
 def tokenize(input, name="unknown", uniquifier=None):

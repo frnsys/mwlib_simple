@@ -10,7 +10,7 @@ class parse_table_cells(object):
     def __init__(self, tokens, xopts):
         self.tokens = tokens
         self.run()
-        
+
     def is_table_cell_start(self, token):
         return token.type==T.t_column or (token.type==T.t_html_tag and token.rawtagname in ("td", "th"))
 
@@ -28,7 +28,7 @@ class parse_table_cells(object):
             if t.type==T.t_special and t.text=="|":
                 mod = T.join_as_text(children[:i])
                 cell.vlist = util.parseParams(mod)
-                
+
                 del children[:i+1]
                 return
 
@@ -37,18 +37,18 @@ class parse_table_cells(object):
         while i<len(children):
             if children[i].type == T.t_tablecaption:
                 children[i].type = T.t_special
-                children[i].text = u"|"
+                children[i].text = "|"
                 children.insert(i+1, T(type=T.t_text, text="+"))
             i+=1
-            
-                
-                
+
+
+
     def run(self):
         tokens = self.tokens
         i = 0
         start = None
         self.is_header = False
-        
+
         def makecell(skip_end=0):
             st = tokens[start].text.strip()
             if st=="|":
@@ -56,7 +56,7 @@ class parse_table_cells(object):
             elif st=="!":
                 self.is_header = True
             is_header = self.is_header
-            
+
             if tokens[start].rawtagname=="th":
                 is_header = True
             elif tokens[start].rawtagname=="td":
@@ -66,8 +66,8 @@ class parse_table_cells(object):
                 tagname = "th"
             else:
                 tagname = "td"
-                
-                
+
+
             search_modifier = tokens[start].text.strip() in ("|", "!", "||", "!!")
             sub = tokens[start+1:i-skip_end]
             self.replace_tablecaption(sub)
@@ -76,21 +76,21 @@ class parse_table_cells(object):
                                  vlist=tokens[start].vlist, is_header=is_header)]
             if search_modifier:
                 self.find_modifier(tokens[start])
-        
+
         while i < len(tokens):
             if self.is_table_cell_start(tokens[i]):
                 if start is not None:
-                    makecell()                        
+                    makecell()
                     start += 1
                     i = start+1
                 else:
                     start = i
                     i+=1
-                        
+
             elif self.is_table_cell_end(tokens[i]):
                 if start is not None:
                     i+=1
-                    makecell(skip_end=1)                    
+                    makecell(skip_end=1)
                     i = start+1
                     start = None
                 else:
@@ -100,20 +100,20 @@ class parse_table_cells(object):
 
         if start is not None:
             makecell()
-            
-                
+
+
 class parse_table_rows(object):
     def __init__(self, tokens, xopts):
         self.tokens = tokens
         self.xopts = xopts
         self.run()
-        
+
     def is_table_row_start(self, token):
         return token.type==T.t_row or (token.type==T.t_html_tag and token.rawtagname=='tr')
 
     def is_table_row_end(self, token):
         return token.type==T.t_html_tag_end and token.rawtagname=='tr'
-    
+
     def find_modifier(self, row):
         children = row.children
         for i,x in enumerate(children):
@@ -123,10 +123,10 @@ class parse_table_rows(object):
                 row.vlist = util.parseParams(mod)
                 del children[:i]
                 return
-            
+
     def is_table_cell_start(self, token):
         return token.type==T.t_column or (token.type==T.t_html_tag and token.rawtagname in ("td", "th"))
-    
+
     def run(self):
         tokens = self.tokens
         i = 0
@@ -145,8 +145,8 @@ class parse_table_rows(object):
             if rowbegintoken is None:
                 return {}
             return dict(vlist=rowbegintoken.vlist)
-        
-            
+
+
         while i < len(tokens):
             if start is None and self.is_table_cell_start(tokens[i]):
                 rowbegintoken = None
@@ -164,7 +164,7 @@ class parse_table_rows(object):
                     rowbegintoken= tokens[start]
                     remove_start = 1
                     i = start+1
-                    
+
                 else:
                     rowbegintoken = tokens[i]
                     remove_start = 1
@@ -191,13 +191,13 @@ class parse_table_rows(object):
             if should_find_modifier():
                 self.find_modifier(tokens[start])
             parse_table_cells(sub, self.xopts)
-        
+
 class parse_tables(object):
     def __init__(self, tokens, xopts):
         self.xopts = xopts
         self.tokens = tokens
         self.run()
-        
+
     def is_table_start(self, token):
         return token.type==T.t_begintable or (token.type==T.t_html_tag and token.rawtagname=="table")
 
@@ -215,13 +215,13 @@ class parse_tables(object):
             table.vlist = util.parseParams(mod)
             del children[:i]
 
-        i = 0    
+        i = 0
         for i,x in enumerate(children):
             if x.type in (T.t_newline, T.t_break):
                 break
 
         compute_mod()
-        
+
     def find_caption(self, table):
         children = table.children
         start = None
@@ -238,7 +238,7 @@ class parse_tables(object):
             i+=1
 
         modifier = None
-        
+
         while i<len(children):
             t = children[i]
             if t.tagname not in ("ref",) and (t.text is None or t.text.startswith("\n")):
@@ -249,7 +249,7 @@ class parse_tables(object):
                 else:
                     sub = children[start+1:i]
                     vlist = {}
-                    
+
                 caption = T(type=T.t_complex_caption, children=sub, vlist=vlist)
                 children[start:i] = [caption]
                 return
@@ -257,9 +257,9 @@ class parse_tables(object):
                 modifier = i
             elif t.type == T.t_2box_open and modifier is None:
                 modifier =  0
-                
+
             i += 1
-            
+
     def run(self):
         tokens = self.tokens
         i = 0
@@ -282,7 +282,7 @@ class parse_tables(object):
             self.find_caption(tokens[start])
             return start
 
-            
+
         while i < len(tokens):
             if self.is_table_start(tokens[i]):
                 stack.append(i)
@@ -297,13 +297,13 @@ class parse_tables(object):
 
         while stack:
             maketable()
-        
+
 class fix_tables(object):
     def __init__(self, tokens, xopts):
         self.xopts = xopts
         self.tokens = tokens
         self.run()
-        
+
     def run(self):
         tokens = self.tokens
         for x in tokens:
@@ -314,15 +314,15 @@ class fix_tables(object):
             if not rows:
                 x.type = T.t_complex_node
                 x.tagname = None
-                
+
 def extract_garbage(tokens, is_allowed,  is_whitespace=None):
     if is_whitespace is None:
         is_whitespace = lambda t: t.type in (T.t_newline,  T.t_break)
-        
+
     res = []
     i = 0
     start = None
-    
+
     while i<len(tokens):
         if is_whitespace(tokens[i]):
             if start is None:
@@ -335,31 +335,31 @@ def extract_garbage(tokens, is_allowed,  is_whitespace=None):
             if start is None:
                 start = i
             i+=1
-            
+
             # find end of garbage
-            
+
             while i<len(tokens):
                 if is_allowed(tokens[i]):
                    break
                 i+= 1
-                
+
             garbage = tokens[start:i]
             del tokens[start:i]
             i = start
             res.append(T(type=T.t_complex_node, children=garbage))
-            
+
     return res
 
 class remove_table_garbage(object):
     need_walker = False
-    
+
     def __init__(self, tokens, xopts):
         from mwlib.refine import core
         walker = core.get_token_walker()
         for t in walker(tokens):
             self.tokens = t
             self.run()
-        
+
     def run(self):
         tokens = self.tokens
         tableidx = 0
@@ -374,7 +374,7 @@ class remove_table_garbage(object):
                         rowgarbage = extract_garbage(c.children,
                                                      is_allowed=lambda t: t.type in (T.t_complex_table_cell, ))
                         tmp.extend(rowgarbage)
-                        
-                        
+
+
                 tokens[tableidx+1:tableidx+1] = tmp
             tableidx+=1

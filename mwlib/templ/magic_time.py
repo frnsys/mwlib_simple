@@ -65,7 +65,7 @@ def formatdate(format, date):
                 process_next = f[1]
                 continue
 
-            if isinstance(f, basestring):
+            if isinstance(f, str):
                 res = strftime(date, f)
             else:
                 res = f(date)
@@ -78,7 +78,7 @@ def formatdate(format, date):
                 process_next = None
             tmp.append(res)
 
-    tmp = u"".join(tmp).strip()
+    tmp = "".join(tmp).strip()
     return tmp
 
 def time(format, datestring=None):
@@ -95,12 +95,12 @@ def time(format, datestring=None):
                 date = parsedate(datestring)
             except ValueError:
                 pass
-            except Exception, err:
+            except Exception as err:
                 sys.stderr.write("ERROR in parsedate: %r while parsing %r" % (err, datestring))
                 pass
 
         if date is None:
-            return  u'<strong class="error">Error: invalid time</strong>'
+            return  '<strong class="error">Error: invalid time</strong>'
         
     if date is None:
         date = datetime.datetime.now()

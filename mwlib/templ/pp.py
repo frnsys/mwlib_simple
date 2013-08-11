@@ -13,20 +13,20 @@ includeonlyrx   = rxc("<includeonly(?:\s[^<>]*)?>.*?(?:</includeonly>|$)")
 
 def get_remove_tags(tags):
     r = rxc("</?(%s)(?:\s[^<>]*)?>" % ("|".join(tags)))
-    return lambda s: r.sub(u'', s)
+    return lambda s: r.sub('', s)
 
 remove_not_included = get_remove_tags(["onlyinclude", "noinclude"])
 
 
 def preprocess(txt, included=True):
     if included:
-        txt = noincluderx.sub(u'', txt)
+        txt = noincluderx.sub('', txt)
 
         if "<onlyinclude>" in txt:
             # if onlyinclude tags are used, only use text between those tags. template 'legend' is a example
             txt = "".join(onlyincluderx.findall(txt))
     else:
-        txt = includeonlyrx.sub(u'', txt)
+        txt = includeonlyrx.sub('', txt)
         txt = remove_not_included(txt)
 
     return txt

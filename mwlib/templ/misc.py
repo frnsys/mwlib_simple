@@ -21,14 +21,14 @@ class DictDB(object):
         self.d.update(kw)
 
         normd = {}
-        for k, v in self.d.items():
+        for k, v in list(self.d.items()):
             normd[k.lower().replace(" ",  "_")] = v
         self.d = normd
 
         self.siteinfo = get_siteinfo('de')
 
     def normalize_and_get_page(self, title, defaultns=0):
-        return page(self.d.get(title.lower().replace(" ", "_"), u""))
+        return page(self.d.get(title.lower().replace(" ", "_"), ""))
         
     def get_siteinfo(self):
         return self.siteinfo
@@ -44,7 +44,7 @@ def expandstr(s, expected=None, wikidb=None, pagename='thispage'):
 
     te = evaluate.Expander(s, pagename=pagename, wikidb=db)
     res = te.expandTemplates()
-    print "EXPAND: %r -> %r" % (s, res)
+    print("EXPAND: %r -> %r" % (s, res))
     if expected is not None:
         assert res==expected, "expected %r, got %r" % (expected, res)
     return res

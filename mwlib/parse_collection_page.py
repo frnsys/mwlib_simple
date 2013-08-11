@@ -8,13 +8,13 @@ def extract_metadata(raw, fields, template_name="saved_book"):
     fields = list(fields)
     fields.append("")
 
-    templ = "".join(u"%s%s\n{{{%s|}}}\n" % (uniq, f, f) for f in fields)
+    templ = "".join("%s%s\n{{{%s|}}}\n" % (uniq, f, f) for f in fields)
     db = expander.DictDB({template_name:templ})
 
     te = expander.Expander(raw, pagename="", wikidb=db)
     res = te.expandTemplates()
 
-    d = defaultdict(unicode)
+    d = defaultdict(str)
     for x in res.split(uniq)[1:-1]:
         name, val = x.split("\n", 1)
         val = val.strip()

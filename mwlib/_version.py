@@ -7,6 +7,6 @@ def main():
     for r in ("mwlib", "mwlib.rl", "mwlib.ext", "mwlib.hiq"):
         try:
             v = pkg_resources.require(r)[0].version
-            print r, v
+            print(r, v)
         except:
             continue

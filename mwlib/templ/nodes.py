@@ -19,7 +19,7 @@ class Node(tuple):
         
     def flatten(self, expander, variables, res):
         for x in self:
-            if isinstance(x, basestring):
+            if isinstance(x, str):
                 res.append(x)
             else:
                 flatten(x, expander, variables, res)
@@ -28,11 +28,11 @@ class IfNode(Node):
     def flatten(self, expander, variables, res):
         cond = []
         flatten(self[0], expander, variables, cond)
-        cond = u"".join(cond).strip()
+        cond = "".join(cond).strip()
 
         # template blacklisting results in 0xebad
         # see http://code.pediapress.com/wiki/ticket/700#comment:1
-        cond = cond.strip(unichr(0xebad))
+        cond = cond.strip(chr(0xebad))
         
         res.append(maybe_newline)
         tmp = []
@@ -43,19 +43,19 @@ class IfNode(Node):
             if len(self)>2:
                 flatten(self[2], expander, variables, tmp)
         _insert_implicit_newlines(tmp)
-        res.append(u"".join(tmp).strip())
+        res.append("".join(tmp).strip())
         res.append(dummy_mark)
 
 class IfeqNode(Node):
     def flatten(self, expander, variables, res):        
         v1 = []
         flatten(self[0], expander, variables, v1)
-        v1 = u"".join(v1).strip()
+        v1 = "".join(v1).strip()
 
         v2 = []
         if len(self)>1:
             flatten(self[1], expander, variables, v2)
-        v2 = u"".join(v2).strip()
+        v2 = "".join(v2).strip()
 
 
 
@@ -75,7 +75,7 @@ class IfeqNode(Node):
                 flatten(self[3], expander, variables, tmp)
         
         _insert_implicit_newlines(tmp)
-        res.append(u"".join(tmp).strip())
+        res.append("".join(tmp).strip())
         res.append(dummy_mark)
 
 
@@ -97,7 +97,7 @@ class SwitchNode(Node):
     unresolved = None
 
     def _store_key(self, key, value, fast, unresolved):
-        if isinstance(key, basestring):
+        if isinstance(key, str):
             key = key.strip()
             if key in fast:
                 return
@@ -134,7 +134,7 @@ class SwitchNode(Node):
             self._store_key(key, value, fast, unresolved)
 
         if nokey_seen:
-            self._store_key(u'#default', nokey_seen[-1], fast, unresolved)
+            self._store_key('#default', nokey_seen[-1], fast, unresolved)
             
         self.unresolved = tuple(unresolved)
         self.fast = fast
@@ -147,7 +147,7 @@ class SwitchNode(Node):
         res.append(maybe_newline)
         val = []
         flatten(self[0], expander, variables, val)
-        val = u"".join(val).strip()
+        val = "".join(val).strip()
 
         num_val = maybe_numeric(val)
         
@@ -162,7 +162,7 @@ class SwitchNode(Node):
         for k, v in self.unresolved[:pos]:
             tmp = []
             flatten(k, expander, variables, tmp)
-            tmp = u"".join(tmp).strip()
+            tmp = "".join(tmp).strip()
             if tmp==val:
                 retval = v
                 break
@@ -176,12 +176,12 @@ class SwitchNode(Node):
                 if retval is not None:
                     retval = retval[1]
                     break
-            retval = retval or u""
+            retval = retval or ""
 
         tmp = []
         flatten(retval, expander, variables, tmp)
         _insert_implicit_newlines(tmp)
-        tmp = u"".join(tmp).strip()
+        tmp = "".join(tmp).strip()
         res.append(tmp)
         res.append(dummy_mark)
 
@@ -189,7 +189,7 @@ class Variable(Node):
     def flatten(self, expander, variables, res):
         name = []
         flatten(self[0], expander, variables, name)
-        name = u"".join(name).strip()
+        name = "".join(name).strip()
         if len(name)>256*1024:
             raise MemoryLimitError("template name too long: %s bytes" % (len(name),))
 
@@ -200,7 +200,7 @@ class Variable(Node):
                 flatten(self[1], expander, variables, res)
             else:
                 # FIXME. breaks If ???
-                res.append(u"{{{%s}}}" % (name,))
+                res.append("{{{%s}}}" % (name,))
         else:
             res.append(v)
        
@@ -208,7 +208,7 @@ class Template(Node):
     def flatten(self, expander, variables, res):
         try:
             return self._flatten(expander, variables, res)
-        except RuntimeError, err:
+        except RuntimeError as err:
             # we expect a "RuntimeError: maximum recursion depth exceeded" here.
             # logging this error is rather hard...
             try:
@@ -223,7 +223,7 @@ class Template(Node):
         
         name = []
         flatten(self[0], expander, variables, name)
-        name = u"".join(name).strip()
+        name = "".join(name).strip()
         if len(name)>256*1024:
             raise MemoryLimitError("template name too long: %s bytes" % (len(name),))
 
@@ -251,17 +251,17 @@ class Template(Node):
                 tmp=[]
                 if len(args)>=1:
                     flatten(args[0], expander, variables, tmp)
-                other = u"".join(tmp).strip()
+                other = "".join(tmp).strip()
                 remainder = remainder.strip()
                 tmp = []
                 if magics.maybe_numeric_compare(remainder, other):
                     if len(args)>=2:
                         flatten(args[1], expander, variables, tmp)
-                        res.append(u"".join(tmp).strip())
+                        res.append("".join(tmp).strip())
                 else:
                     if len(args)>=3:
                         flatten(args[2], expander, variables, tmp)
-                        res.append(u"".join(tmp).strip())
+                        res.append("".join(tmp).strip())
                 res.append(dummy_mark)
                 return
         
@@ -293,7 +293,7 @@ class Template(Node):
 
                 if DEBUG:
                     msg += repr("".join(res[oldidx:]))
-                    print msg
+                    print(msg)
 
 def show(node, indent=0, out=None):
     import sys

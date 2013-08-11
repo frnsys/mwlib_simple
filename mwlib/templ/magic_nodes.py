@@ -7,7 +7,7 @@ class Subst(nodes.Node):
     def flatten(self, expander, variables, res):
         name = []
         evaluate.flatten(self[0], expander, variables, name)
-        name = u"".join(name).strip()
+        name = "".join(name).strip()
 
         res.append("{{subst:%s}}" % (name,))
 
@@ -21,12 +21,12 @@ class Time(nodes.Node):
     def flatten(self, expander, variables, res):
         format = []
         evaluate.flatten(self[0], expander, variables, format)
-        format = u"".join(format).strip()
+        format = "".join(format).strip()
 
         if len(self) > 1:
             d = []
             evaluate.flatten(self[1], expander, variables, d)
-            d = u"".join(d).strip()
+            d = "".join(d).strip()
         else:
             d = None
 
@@ -38,22 +38,22 @@ class Anchorencode(nodes.Node):
     def flatten(self, expander, variables, res):
         arg = []
         evaluate.flatten(self[0], expander, variables, arg)
-        arg = u"".join(arg)
+        arg = "".join(arg)
 
         # Note: mediawiki has a bug. It tries not to touch colons by replacing '.3A' with
         # with the colon. However, if the original string contains the substring '.3A',
         # it will also replace it with a colon. We do *not* reproduce that bug here...
         import urllib
-        e = urllib.quote_plus(arg.encode('utf-8'), ':').replace('%', '.').replace('+', '_')
+        e = urllib.parse.quote_plus(arg.encode('utf-8'), ':').replace('%', '.').replace('+', '_')
         res.append(e)
 
 
 def _rel2abs(rel, base):
     rel = rel.rstrip("/")
-    if rel in (u"", "."):
+    if rel in ("", "."):
         return base
     if not (rel.startswith("/") or rel.startswith("./") or rel.startswith("../")):
-        base = u""
+        base = ""
 
     import posixpath
     p = posixpath.normpath("/%s/%s/" % (base, rel)).strip("/")
@@ -64,12 +64,12 @@ class rel2abs(nodes.Node):
     def flatten(self, expander, variables, res):
         arg = []
         evaluate.flatten(self[0], expander, variables, arg)
-        arg = u"".join(arg).strip()
+        arg = "".join(arg).strip()
 
         arg2 = []
         if len(self) > 1:
             evaluate.flatten(self[1], expander, variables, arg2)
-        arg2 = u"".join(arg2).strip()
+        arg2 = "".join(arg2).strip()
         if not arg2:
             arg2 = expander.pagename
 
@@ -80,14 +80,14 @@ class Tag(nodes.Node):
     def flatten(self, expander, variables, res):
         name = []
         evaluate.flatten(self[0], expander, variables, name)
-        name = u"".join(name).strip()
-        parameters = u''
+        name = "".join(name).strip()
+        parameters = ''
 
         for parm in self[2:]:
             tmp = []
             evaluate.flatten(parm, expander, variables, tmp)
             evaluate._insert_implicit_newlines(tmp)
-            tmp = u"".join(tmp)
+            tmp = "".join(tmp)
             if "=" in tmp:
                 key, value = tmp.split("=", 1)
                 parameters += " %s=%s" % (key, quoteattr(value))
@@ -99,11 +99,11 @@ class Tag(nodes.Node):
             tmp = []
             evaluate.flatten(self[1], expander, variables, tmp)
             evaluate._insert_implicit_newlines(tmp)
-            tmp = u"".join(tmp)
+            tmp = "".join(tmp)
             tmpres.append(tmp)
 
         tmpres.append("</%s>" % (name,))
-        tmpres = u"".join(tmpres)
+        tmpres = "".join(tmpres)
         tmpres = expander.uniquifier.replace_tags(tmpres)
         res.append(tmpres)
 
@@ -121,7 +121,7 @@ class Displaytitle(nodes.Node):
     def flatten(self, expander, variables, res):
         name = []
         evaluate.flatten(self[0], expander, variables, name)
-        name = u"".join(name).strip()
+        name = "".join(name).strip()
         expander.magic_displaytitle = name
 
 
@@ -141,7 +141,7 @@ def reverse_formatnum(val):
 
 def _formatnum(val):
     try:
-        val = long(val)
+        val = int(val)
     except ValueError:
         pass
     else:
@@ -158,7 +158,7 @@ def _formatnum(val):
 def formatnum(val):
     res = _formatnum(val)
     if isinstance(res, str):
-        return unicode(res, "utf-8", "replace")
+        return str(res, "utf-8", "replace")
     else:
         return res
 
@@ -166,16 +166,16 @@ class Formatnum(nodes.Node):
     def flatten(self, expander, variables, res):
         arg0 = []
         evaluate.flatten(self[0], expander, variables, arg0)
-        arg0 = u"".join(arg0)
+        arg0 = "".join(arg0)
 
         if len(self) > 1:
             arg1 = []
             evaluate.flatten(self[1], expander, variables, arg1)
-            arg1 = u"".join(arg1)
+            arg1 = "".join(arg1)
         else:
-            arg1 = u""
+            arg1 = ""
 
-        if arg1.strip() in (u"r", u"R"):
+        if arg1.strip() in ("r", "R"):
             res.append(reverse_formatnum(arg0))
         else:
             res.append(formatnum(arg0))

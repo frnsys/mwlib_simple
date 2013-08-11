@@ -26,7 +26,7 @@ tok2class = {
     }
 
 
-        
+
 
 def _change_classes(node):
     if isinstance(node, T):
@@ -44,47 +44,47 @@ def _change_classes(node):
             node.__class__ = node.compatnode.__class__
             node.__dict__ = node.compatnode.__dict__
             return
-        
+
         if node.type==T.t_magicword:
-            node.caption = u""
+            node.caption = ""
             node.children = []
             node.__class__=N.Text
             return
 
         if node.type==T.t_html_tag_end:
-            node.caption = u""
+            node.caption = ""
             node.children = []
             node.__class__=N.Text
             return
-            
+
         klass = tok2class.get(node.type, N.Text)
-        
-            
+
+
         if klass==N.Text:
-            node.caption=node.text or u""
+            node.caption=node.text or ""
             assert not node.children, "%r has children" % (node,)
-            
+
         node.__class__=klass
-        
+
         if node.type==T.t_hrule or (node.type in (T.t_html_tag, T.t_html_tag_end) and node.rawtagname=='hr'):
             node.__class__=N.TagNode
             node.caption = "hr"
-            
+
         if node.rawtagname=='br':
             node.__class__=N.TagNode
             node.caption="br"
 
         if node.type==T.t_complex_style:
             node.__class__=N.Style
-            
+
         if node.__class__==N.Text:
-            node.caption=node.text or u""
+            node.caption=node.text or ""
             assert not node.children, "%r has children" % (node,)
-            
-            
+
+
         if node.children is None:
             node.children = []
-            
+
         if node.vlist is None:
             node.vlist = {}
         if node.type==T.t_complex_tag:
@@ -134,7 +134,7 @@ def _change_classes(node):
                 node.caption="small"
             elif node.tagname=="s":
                 node.__class__=N.Style
-                node.caption="s"                
+                node.caption="s"
             elif node.tagname=="var":
                 node.__class__=N.Style
                 node.caption="var"
@@ -153,13 +153,13 @@ def _change_classes(node):
             elif node.tagname=="u":
                 node.__class__=N.Style
                 node.caption=="u"
-                
+
         if node.__class__==N.Link:
             ns = node.ns
-            
+
             if node.colon:
                 ns = nshandling.NS_SPECIAL
-                
+
             if ns==nshandling.NS_IMAGE:
                 node.__class__ = N.ImageLink
             elif ns==nshandling.NS_MAIN:
@@ -178,17 +178,17 @@ def _change_classes(node):
             ns, partial, full = node.nshandler.splitname(node.target)
             if node.namespace is None:
                 node.namespace = node.ns
-            
-                
-            
+
+
+
         node = node.children
-        
+
     if node:
         for x in node:
             _change_classes(x)
 
-    
-    
+
+
 def parse_txt(raw, **kwargs):
     sub = core.parse_txt(raw, **kwargs)
     article = T(type=T.t_complex_article, start=0, len=0, children=sub)

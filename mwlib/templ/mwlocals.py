@@ -9,7 +9,7 @@ NUMBEROFARTICLES NUMBEROFPAGES NUMBEROFFILES NUMBEROFUSERS CURRENTVERSION
 
 def parse_locals(localstr):
     if isinstance(localstr, str):
-        localstr = unicode(localstr)
+        localstr = str(localstr)
     res = {}
     for x in localstr.split("\n----\n"):
         try:

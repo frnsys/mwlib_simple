@@ -14,14 +14,14 @@ class Uniquifier(object):
             import binascii
             r=os.urandom(8)
             self.__class__.random_string = binascii.hexlify(r)
-       
+
     def get_uniq(self, repl, name):
         r = self.random_string
         count = len(self.uniq2repl)
         retval = "\x7fUNIQ-%s-%s-%s-QINU\x7f" % (name, count, r)
         self.uniq2repl[retval] = repl
         return retval
-        
+
     def _repl_from_uniq(self, mo):
         u = mo.group(0)
         t = self.uniq2repl.get(u, None)
@@ -33,7 +33,7 @@ class Uniquifier(object):
         rx=re.compile("\x7fUNIQ-[a-z0-9]+-\\d+-[a-f0-9]+-QINU\x7f")
         txt = rx.sub(self._repl_from_uniq, txt)
         return txt
-    
+
     def _repl_to_uniq(self, mo):
         tagname = mo.group("tagname")
         if tagname is None:
@@ -44,18 +44,18 @@ class Uniquifier(object):
 
         else:
             tagname = tagname.lower()
-        
+
         r = dict(
             tagname=tagname,
-            inner = mo.group("inner") or u"",
-            vlist = mo.group("vlist") or u"",
+            inner = mo.group("inner") or "",
+            vlist = mo.group("vlist") or "",
             complete = mo.group(0) )
 
-        if tagname==u"nowiki":
+        if tagname=="nowiki":
             r["complete"] = r["inner"]
 
         return self.get_uniq(r, tagname)
-    
+
     def replace_tags(self, txt):
         self.txt = txt
         rx = self.rx
@@ -78,6 +78,6 @@ class Uniquifier(object):
 
             rx = rx.replace("NAMES", "|".join(list(tags)))
             rx = re.compile(rx, re.VERBOSE | re.DOTALL | re.IGNORECASE)
-            self.rx = rx 
+            self.rx = rx
         newtxt = rx.sub(self._repl_to_uniq, txt)
         return newtxt

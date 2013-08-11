@@ -31,7 +31,7 @@ class Log(object):
         if prefix is None:
             self._prefix = []
         else:
-            if isinstance(prefix, basestring):
+            if isinstance(prefix, str):
                 self._prefix = [prefix]
             else:
                 self._prefix = prefix
@@ -39,7 +39,7 @@ class Log(object):
     def __getattr__(self, name):
         return Log([self, name], timestamps=self.timestamps)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self._prefix)
     
     def __str__(self):

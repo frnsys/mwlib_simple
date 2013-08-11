@@ -42,7 +42,7 @@ def optimize(node):
     if type(node) is tuple:
         return tuple(optimize(x) for x in node)
     
-    if isinstance(node, basestring):
+    if isinstance(node, str):
         return node
 
     if len(node)==1 and type(node) in (list, Node):
@@ -55,15 +55,15 @@ def optimize(node):
         res = []
         tmp = []
         for x in (optimize(x) for x in node):
-            if isinstance(x, basestring) and x is not eqmark:
+            if isinstance(x, str) and x is not eqmark:
                 tmp.append(x)
             else:
                 if tmp:
-                    res.append(u''.join(tmp))
+                    res.append(''.join(tmp))
                     tmp = []
                 res.append(x)
         if tmp:
-            res.append(u''.join(tmp))
+            res.append(''.join(tmp))
 
         node[:] = res
     
@@ -84,7 +84,7 @@ class Parser(object):
     
     def __init__(self, txt, included=True, replace_tags=None, siteinfo=None):
         if isinstance(txt, str):
-            txt = unicode(txt)
+            txt = str(txt)
             
         self.txt = txt
         self.included = included
@@ -119,7 +119,7 @@ class Parser(object):
         v=[]
 
         try:
-            idx = children.index(u"|")
+            idx = children.index("|")
         except ValueError:
             v.append(children)
         else:
@@ -144,15 +144,15 @@ class Parser(object):
         self.setToken((ty, txt))
 
     def _strip_ws(self, cond):
-        if isinstance(cond, unicode):
+        if isinstance(cond, str):
             return cond.strip()
 
         cond = list(cond)
-        if cond and isinstance(cond[0], unicode):
+        if cond and isinstance(cond[0], str):
             if not cond[0].strip():
                 del cond[0]
 
-        if cond and isinstance(cond[-1], unicode):
+        if cond and isinstance(cond[-1], str):
             if not cond[-1].strip():
                 del cond[-1]
         cond = tuple(cond)
@@ -186,17 +186,17 @@ class Parser(object):
 
         linkcount = 0
         for c in children:
-            if c==u'[[':
+            if c=='[[':
                 linkcount += 1
             elif c==']]':
                 if linkcount:
                     linkcount -= 1
-            elif c==u'|' and linkcount==0:
+            elif c=='|' and linkcount==0:
                 args.append(arg)
                 arg = []
                 append_arg = True
                 continue
-            elif c==u"=" and linkcount==0:
+            elif c=="=" and linkcount==0:
                 arg.append(eqmark)
                 continue
             arg.append(c)
@@ -212,11 +212,11 @@ class Parser(object):
         # we stop here on the first colon. this is wrong but we don't have
         # the list of allowed magic functions here...
         done = False
-        if isinstance(node, basestring):
+        if isinstance(node, str):
             node = [node]
             
         for x in node:
-            if not isinstance(x, basestring):
+            if not isinstance(x, str):
                 continue
             if ":" in x:
                 x = x.split(":")[0]
@@ -229,14 +229,14 @@ class Parser(object):
         return True
     
     def templateFromChildren(self, children):
-        if children and isinstance(children[0], unicode):
+        if children and isinstance(children[0], str):
             s = children[0].strip().lower()
             if self.name2rx["if"].match(s):
                 return self.ifnodeFromChildren(children)
             if self.name2rx["switch"].match(s):
                 return self.switchnodeFromChildren(children)
             
-            if u':' in s:
+            if ':' in s:
                 from mwlib.templ import magic_nodes
                 name, first = s.split(':', 1)
                 name = self.aliasmap.resolve_magic_alias(name) or name
@@ -250,17 +250,17 @@ class Parser(object):
         append_arg = False
         idx = 0
         for idx, c in enumerate(children):
-            if c==u'|':
+            if c=='|':
                 append_arg = True
                 break
             name.append(c)
 
         name = optimize(name)
-        if isinstance(name, unicode):
+        if isinstance(name, str):
             name = name.strip()
 
         if not self._is_good_name(name):
-            return Node([u"{{"] + children + [u"}}"])
+            return Node(["{{"] + children + ["}}"])
         
         args = self._parse_args(children[idx+1:], append_arg=append_arg)
         
