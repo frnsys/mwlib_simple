@@ -10,21 +10,21 @@ parse = uparser.simpleparse
 
 
 def test_rot13():
-    r = parse(u"""<rot13>test</rot13>""")  # grfg
+    r = parse("""<rot13>test</rot13>""")  # grfg
     txt = [x.caption for x in r.find(parser.Text)]
-    assert txt == [u'rot13(test) is grfg']
+    assert txt == ['rot13(test) is grfg']
 
 
 def test_idl():
-    stuff = u"\n\t\ta:=b '''c''' v"
-    r = parse(u"""<idl>%s</idl>""" % stuff)
+    stuff = "\n\t\ta:=b '''c''' v"
+    r = parse("""<idl>%s</idl>""" % stuff)
     tn = r.find(parser.TagNode)[0]
     assert isinstance(tn, parser.TagNode)
     assert tn.caption == "source"
     assert tn.vlist["lang"] == "idl"
     for c in tn.children[0].children:
         assert isinstance(c, parser.Text)
-    assert stuff == u"".join(c.caption for c in tn.children)
+    assert stuff == "".join(c.caption for c in tn.children)
 
 def test_syntaxhightlight():
     raw = '''<syntaxhighlight lang="php">
@@ -43,13 +43,13 @@ html text
     assert src and src.tagname == 'source', 'Syntaxhighight node not treated as source'
 
 def test_listing():
-    raw = u'''
+    raw = '''
 * <listing name="Attraction name" alt="local or alternative name" address="Address" directions="directions" phone="+91-22-2222-1234" email="fakeemail@fakehost.com" fax="+91-22-2222-1235" url="http://www.example.com" hours="9 pm -5:30 pm" price="Rs. 50 for entrance" lat="latitude" long="longitude" tags="comma,separated,tag_labels">Stuff about the attraction.</listing>'''
     r = parse(raw)
 
 
 def test_rdf():
-    raw = u'''<rdf>
+    raw = '''<rdf>
     <> dc:source <http://www.example.com/some/upstream/document.txt>, Wikipedia:AnotherArticle .
 
     <http://www.example.com/some/upstream/document.txt>

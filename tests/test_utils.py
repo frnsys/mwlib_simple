@@ -10,11 +10,11 @@ from mwlib import utils
 
 def test_fsescape():
     test_set = (
-        (u'abc', 'abc'),
         ('abc', 'abc'),
-        (u'ä', '~228~'),
+        ('abc', 'abc'),
+        ('ä', '~228~'),
         ('ä', '~195~~164~'),
-        (u'~', '~~'),
+        ('~', '~~'),
         ('~', '~~'),
     )
     for s_in, s_out in test_set:
@@ -43,7 +43,7 @@ def test_get_safe_url():
     assert g('http://bla" target="_blank') is None
     assert g('http') is None
     assert g('http://bla/foo/bar" target="_blank') == 'http://bla/foo/bar%22%20target%3D%22_blank'
-    assert g(u'http://xyz/wiki/%D0%91%D0%94%D0%A1%D0%9C') == 'http://xyz/wiki/%D0%91%D0%94%D0%A1%D0%9C'
+    assert g('http://xyz/wiki/%D0%91%D0%94%D0%A1%D0%9C') == 'http://xyz/wiki/%D0%91%D0%94%D0%A1%D0%9C'
 
 
 def test_garble_password():

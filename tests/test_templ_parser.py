@@ -13,5 +13,5 @@ def test_aliasmap_no_magicwords():
 
 
 def test_parser_no_magicwords():
-    p = parser.Parser(u"some text", siteinfo=si)
+    p = parser.Parser("some text", siteinfo=si)
     p.parse()

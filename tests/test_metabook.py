@@ -41,7 +41,7 @@ Summary line 2
 test_metabook = {
     'type': 'collection',
     'version': 1,
-    'title': u'bla',
+    'title': 'bla',
     'items': [
         {
             'type': 'chapter',
@@ -80,7 +80,7 @@ test_metabook = json.loads(json.dumps(test_metabook))
 def test_parse_collection_page():
     #first parsestring
     mb = metabook.parse_collection_page(test_wikitext1)
-    print mb
+    print(mb)
 
     assert mb['type'] == 'collection'
     assert mb['version'] == 1
@@ -190,7 +190,7 @@ def test_get_item_list():
 
 def test_checksum():
     cs1 = metabook.calc_checksum(test_metabook)
-    print cs1
+    print(cs1)
     assert cs1
     assert isinstance(cs1, str)
     import copy

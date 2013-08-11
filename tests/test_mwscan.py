@@ -4,15 +4,15 @@ from mwlib import utoken as mwscan
 
 
 def test_resolve_symbolic_entity():
-    assert mwscan.resolve_entity(u"&amp;") == u"&", "bad result"
+    assert mwscan.resolve_entity("&amp;") == "&", "bad result"
 
 
 def test_resolve_numeric_entity():
-    assert mwscan.resolve_entity(u"&#32;") == u' ', "expected space"
+    assert mwscan.resolve_entity("&#32;") == ' ', "expected space"
 
 
 def test_resolve_hex_entity():
-    assert mwscan.resolve_entity(u"&#x20;") == u' ', "expected space"
+    assert mwscan.resolve_entity("&#x20;") == ' ', "expected space"
 
 
 def test_resolve_entity_out_of_range():
@@ -22,13 +22,13 @@ def test_resolve_entity_out_of_range():
 
 def test_url():
     s = mwscan.scan("http://tools.wikimedia.de/~magnus/geo/geohack.php?language=de&params=50_0_0_N_8_16_16_E_type:city(190934)_region:DE-RP")
-    print s
+    print(s)
     assert len(s) == 1, "expected one url"
 
 
 def _check_table_markup(s):
     toks = [t[0] for t in mwscan.scan(s)]
-    print "TOKENS:", toks
+    print("TOKENS:", toks)
     assert mwscan.token.t_begin_table not in toks, "should not contain table markup"
     assert mwscan.token.t_end_table not in toks, "should not contain table markup"
 

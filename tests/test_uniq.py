@@ -33,7 +33,7 @@ def test_comment():
 
     def repl(txt, expected):
         res = u.replace_tags(txt)
-        print repr(txt),  "->",  repr(res)
+        print(repr(txt),  "->",  repr(res))
         assert res == expected
 
     yield repl,  "foo<!-- bla -->bar",  "foobar"

@@ -8,7 +8,7 @@ from mwlib import expr
 
 def ee(s, expected=None):
     s = expandstr("{{#expr:%s}}" % (s,))
-    if isinstance(expected, (float, int, long)):
+    if isinstance(expected, (float, int)):
         assert math.fabs(float(s) - expected) < 1e-5
     elif expected is not None:
         assert s == expected, "expected %r, got %r" % (expected, s)
@@ -145,11 +145,11 @@ def test_expr_repr():
 def test_unary_minus_sin():
     """http://code.pediapress.com/wiki/ticket/450"""
     val = expr.expr("-sin(1.5707963267948966)")
-    print val
+    print(val)
     assert math.fabs(-1 - val) < 0.0001
 
     val = expr.expr("-sin ((90--82)*3.14159265358979/180)*(90+-80.0833333)*1.55*1.30522+49.3")
-    print val
+    print(val)
     assert math.fabs(46.507864831337 - val) < 0.0001
 
 

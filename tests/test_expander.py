@@ -8,14 +8,14 @@ from mwlib.dummydb import DummyDB
 
 def parse_and_show(s):
     res = expander.parse(s)
-    print "PARSE:", repr(s)
+    print("PARSE:", repr(s))
     expander.show(res)
     return res
 
 
 def test_noexpansion_inside_pre():
     res = expandstr("<pre>A{{Pipe}}B</pre>", "<pre>A{{Pipe}}B</pre>", wikidb=DictDB(Pipe="C"))
-    print res
+    print(res)
 
 
 def test_undefined_variable():
@@ -24,8 +24,8 @@ def test_undefined_variable():
 
     te = expander.Expander(db.normalize_and_get_page("Art", 0).rawtext, pagename="thispage", wikidb=db)
     res = te.expandTemplates()
-    print "EXPANDED:", repr(res)
-    assert u"{{{undefined_variable}}}" in res, "wrong expansion for undefined variable"
+    print("EXPANDED:", repr(res))
+    assert "{{{undefined_variable}}}" in res, "wrong expansion for undefined variable"
 
 
 def test_birth_date_and_age():
@@ -36,7 +36,7 @@ def test_birth_date_and_age():
             })
     res = expandstr('{{birth date and age|1960|02|8}}', wikidb=db)
 
-    print "EXPANDED:", repr(res)
+    print("EXPANDED:", repr(res))
     import datetime
     now = datetime.datetime.now()
     b = datetime.datetime(1960, 2, 8)
@@ -44,7 +44,7 @@ def test_birth_date_and_age():
     if now.month * 32 + now.day < b.month * 32 + b.day:
         age -= 1
 
-    expected = u"age&nbsp;%s" % age
+    expected = "age&nbsp;%s" % age
     assert expected in res
 
 
@@ -79,7 +79,7 @@ def test_alfred():
         )
     te = expander.Expander(db.normalize_and_get_page("a", 0).rawtext, pagename="thispage", wikidb=db)
     res = te.expandTemplates()
-    print "EXPANDED:", repr(res)
+    print("EXPANDED:", repr(res))
     assert "1960" in res
 
 
@@ -206,7 +206,7 @@ def test_template_name_colon():
     """
     p = parse_and_show("{{Template:foobar}}")
     assert isinstance(p, expander.Template), 'expected a template'
-    assert p[0] == u'Template:foobar'
+    assert p[0] == 'Template:foobar'
 
 
 def test_expand_parser_func_name():
@@ -368,7 +368,7 @@ def test_urlencode():
 
 
 def test_urlencode_non_ascii():
-    expandstr(u'{{urlencode:L\xe9onie}}', 'L%C3%A9onie')
+    expandstr('{{urlencode:L\xe9onie}}', 'L%C3%A9onie')
 
 
 def test_anchorencode():
@@ -377,7 +377,7 @@ def test_anchorencode():
 
 
 def test_anchorencode_non_ascii():
-    expandstr(u"{{anchorencode:\u0107}}", ".C4.87")
+    expandstr("{{anchorencode:\u0107}}", ".C4.87")
 
 
 def test_fullurl():
@@ -385,7 +385,7 @@ def test_fullurl():
 
 
 def test_fullurl_nonascii():
-    expandstr(u'{{fullurl:L\xe9onie}}', 'http://en.wikipedia.org/wiki/L%C3%A9onie')
+    expandstr('{{fullurl:L\xe9onie}}', 'http://en.wikipedia.org/wiki/L%C3%A9onie')
 
 
 def test_server():
@@ -430,23 +430,23 @@ def test_implicit_newline_after_expand():
 
 def test_pagename_non_ascii():
     def e(a, b):
-        return expandstr(a, b, pagename=u'L\xe9onie s')
-    yield e, '{{PAGENAME}}', u'L\xe9onie s'
+        return expandstr(a, b, pagename='L\xe9onie s')
+    yield e, '{{PAGENAME}}', 'L\xe9onie s'
     yield e, '{{PAGENAMEE}}', 'L%C3%A9onie_s'
 
-    yield e, '{{BASEPAGENAME}}', u'L\xe9onie s'
+    yield e, '{{BASEPAGENAME}}', 'L\xe9onie s'
     yield e, '{{BASEPAGENAMEE}}', 'L%C3%A9onie_s'
 
-    yield e, '{{FULLPAGENAME}}', u'L\xe9onie s'
+    yield e, '{{FULLPAGENAME}}', 'L\xe9onie s'
     yield e, '{{FULLPAGENAMEE}}', 'L%C3%A9onie_s'
 
-    yield e, '{{SUBPAGENAME}}', u'L\xe9onie s'
+    yield e, '{{SUBPAGENAME}}', 'L\xe9onie s'
     yield e, '{{SUBPAGENAMEE}}', 'L%C3%A9onie_s'
 
 
 def test_get_templates():
     def doit(source, expected):
-        r = expander.get_templates(source, u'')
+        r = expander.get_templates(source, '')
         assert r == expected, "expected %r, got %r" % (expected, r)
 
     yield doit, "{{foo| {{ bar }} }}", set("foo bar".split())
@@ -475,7 +475,7 @@ def test_preserve_space_in_tag():
 
 def test_localurle_umlaut():
     """http://code.pediapress.com/wiki/ticket/473"""
-    r = expandstr(u"{{LOCALURLE:F\xfcbar}}")
+    r = expandstr("{{LOCALURLE:F\xfcbar}}")
     assert r.endswith('/F%C3%BCbar')
 
 
@@ -526,7 +526,7 @@ def test_namespace_as_template_type_error():
 
 
 def test_preprocess_uniq_after_comment():
-    s = u"""
+    s = """
 <!--
 these <ref> tags should be ignored: <ref>
 -->
@@ -538,8 +538,8 @@ foo was missing<ref>bar</ref> <!-- some comment--> baz
 """
     e = expander.Expander(s,  pagename="test",  wikidb=DictDB())
     raw = e.expandTemplates()
-    print repr(raw)
-    assert u"foo was missing" in raw, "text is missing"
+    print(repr(raw))
+    assert "foo was missing" in raw, "text is missing"
 
 
 def test_dynamic_parserfun():
@@ -553,7 +553,7 @@ def test_dynamic_parserfun():
 def test_iferror_switch_default():
     """http://code.pediapress.com/wiki/ticket/648"""
     yield expandstr, "{{#iferror: [[foo {{bar}}]] | yes|no}}", "no"
-    yield expandstr, u"""{{#switch: bla
+    yield expandstr, """{{#switch: bla
 | #default = {{#iferror: [[foo {{bar}}]] | yes|no}}
 }}""", "no"
 
@@ -686,30 +686,30 @@ def test_ns():
 
 def test_localized_expander():
     db = DummyDB("nl")
-    e = expander.Expander(u"{{#als: 1 | yes | no}}", wikidb=db)
+    e = expander.Expander("{{#als: 1 | yes | no}}", wikidb=db)
     res = e.expandTemplates()
     assert res == "yes"
 
 
 def test_localized_switch_default():
     db = DummyDB("nl")
-    e = expander.Expander(u"{{#switch: 1 | #standaard=foobar}}", wikidb=db)
+    e = expander.Expander("{{#switch: 1 | #standaard=foobar}}", wikidb=db)
     res = e.expandTemplates()
     assert res == "foobar"
 
 
 def test_localized_expr():
     db = DummyDB("nl")
-    e = expander.Expander(u"{{#expressie: 1+2*3}}", wikidb=db)
+    e = expander.Expander("{{#expressie: 1+2*3}}", wikidb=db)
     res = e.expandTemplates()
     assert res == "7"
 
 
 def test_resolve_magic_alias():
     db = DummyDB("nl")
-    e = expander.Expander(u"{{#als: 1 | yes | no}}", wikidb=db)
-    assert e.resolve_magic_alias(u"#als") == u"#if"
-    assert e.resolve_magic_alias(u"#foobar") is None
+    e = expander.Expander("{{#als: 1 | yes | no}}", wikidb=db)
+    assert e.resolve_magic_alias("#als") == "#if"
+    assert e.resolve_magic_alias("#foobar") is None
 
 
 def test_safesubst():

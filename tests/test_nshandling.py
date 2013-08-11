@@ -8,7 +8,7 @@ assert siteinfo_de, "cannot find german siteinfo"
 def test_fqname():
     def get_fqname(name, expected):
         fqname = nshandler.get_fqname(name)
-        print "%r -> %r" % (name, fqname)
+        print("%r -> %r" % (name, fqname))
         assert fqname == expected
 
     nshandler = nshandling.nshandler(siteinfo_de)
@@ -27,7 +27,7 @@ def test_fqname():
 def test_fqname_defaultns():
     def get_fqname(name, expected):
         fqname = nshandler.get_fqname(name, 10)  # Vorlage
-        print "%r -> %r" % (name, fqname)
+        print("%r -> %r" % (name, fqname))
         assert fqname == expected
 
     nshandler = nshandling.nshandler(siteinfo_de)

@@ -14,7 +14,7 @@ def test_simple_table():
 | C || D
 |}""")
     table = r.find(parser.Table)[0]
-    print "TABLE:", table
+    print("TABLE:", table)
 
     assert len(table.children) == 2, "expected two rows"
     for x in table.children:
