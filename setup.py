@@ -21,7 +21,7 @@ def main():
     if os.path.exists('Makefile'):
         build_deps()
 
-    install_requires = ["lxml", "simplejson>=2.3"]
+    install_requires = ["lxml", "simplejson>=2.3", "cython"]
 
     ext_modules = []
     ext_modules.append(Extension("mwlib._uscan", ["mwlib/_uscan.cc"]))
