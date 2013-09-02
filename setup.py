@@ -21,7 +21,7 @@ def main():
     if os.path.exists('Makefile'):
         build_deps()
 
-    install_requires = ["lxml", "simplejson>=2.3", "cython"]
+    install_requires = ["lxml", "simplejson>=2.3"]
 
     ext_modules = []
     ext_modules.append(Extension("mwlib._uscan", ["mwlib/_uscan.cc"]))
@@ -44,7 +44,7 @@ def main():
         license="BSD License",
         maintainer="pediapress.com",
         maintainer_email="info@pediapress.com",
-        long_description=open("README.rst").read())
+        long_description='')
 
 
 if __name__ == '__main__':
